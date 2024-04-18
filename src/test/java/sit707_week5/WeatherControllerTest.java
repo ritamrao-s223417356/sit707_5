@@ -1,96 +1,90 @@
 package sit707_week5;
 
+import org.junit.AfterClass;
 import org.junit.Assert;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 public class WeatherControllerTest {
+    private static WeatherController wController;
+    private static int nHours;
+    private static double[] temperatures;
 
-	@Test
-	public void testStudentIdentity() {
-		String studentId = null;
-		Assert.assertNotNull("Student ID is null", studentId);
-	}
+    @BeforeClass
+    public static void setUp() {
+        // Initialize controller only once
+        wController = WeatherController.getInstance();
+        // Retrieve total hours and temperatures
+        nHours = wController.getTotalHours();
+        temperatures = new double[nHours];
+        for (int i = 0; i < nHours; i++) {
+            temperatures[i] = wController.getTemperatureForHour(i + 1);
+        }
+    }
 
-	@Test
-	public void testStudentName() {
-		String studentName = null;
-		Assert.assertNotNull("Student name is null", studentName);
-	}
+    @AfterClass
+    public static void tearDown() {
+        // Close controller after all tests are done
+        wController.close();
+    }
 
-	@Test
-	public void testTemperatureMin() {
-		System.out.println("+++ testTemperatureMin +++");
-		
-		// Initialise controller
-		WeatherController wController = WeatherController.getInstance();
-		
-		// Retrieve all the hours temperatures recorded as for today
-		int nHours = wController.getTotalHours();
-		double minTemperature = 1000;
-		for (int i=0; i<nHours; i++) {
-			// Hour range: 1 to nHours
-			double temperatureVal = wController.getTemperatureForHour(i+1); 
-			if (minTemperature > temperatureVal) {
-				minTemperature = temperatureVal;
-			}
-		}
-		
-		// Should be equal to the min value that is cached in the controller.
-		Assert.assertTrue(wController.getTemperatureMinFromCache() == minTemperature);
-		
-		// Shutdown controller
-		wController.close();		
-	}
-	
-	@Test
-	public void testTemperatureMax() {
-		System.out.println("+++ testTemperatureMax +++");
-		
-		// Initialise controller
-		WeatherController wController = WeatherController.getInstance();
-		
-		// Retrieve all the hours temperatures recorded as for today
-		int nHours = wController.getTotalHours();
-		double maxTemperature = -1;
-		for (int i=0; i<nHours; i++) {
-			// Hour range: 1 to nHours
-			double temperatureVal = wController.getTemperatureForHour(i+1); 
-			if (maxTemperature < temperatureVal) {
-				maxTemperature = temperatureVal;
-			}
-		}
-		
-		// Should be equal to the min value that is cached in the controller.
-		Assert.assertTrue(wController.getTemperatureMaxFromCache() == maxTemperature);
-		
-		// Shutdown controller
-		wController.close();
-	}
+    @Test
+    public void testStudentIdentity() {
+        String studentId = "s223417356";
+        Assert.assertNotNull("Student ID is null", studentId);
+    }
 
-	@Test
-	public void testTemperatureAverage() {
-		System.out.println("+++ testTemperatureAverage +++");
-		
-		// Initialise controller
-		WeatherController wController = WeatherController.getInstance();
-		
-		// Retrieve all the hours temperatures recorded as for today
-		int nHours = wController.getTotalHours();
-		double sumTemp = 0;
-		for (int i=0; i<nHours; i++) {
-			// Hour range: 1 to nHours
-			double temperatureVal = wController.getTemperatureForHour(i+1); 
-			sumTemp += temperatureVal;
-		}
-		double averageTemp = sumTemp / nHours;
-		
-		// Should be equal to the min value that is cached in the controller.
-		Assert.assertTrue(wController.getTemperatureAverageFromCache() == averageTemp);
-		
-		// Shutdown controller
-		wController.close();
-	}
-	
+    @Test
+    public void testStudentName() {
+        String studentName = "Ritam Sunil Rao";
+        Assert.assertNotNull("Student name is null", studentName);
+    }
+
+    @Test
+    public void testTemperatureMin() {
+        System.out.println("+++ testTemperatureMin +++");
+
+        double minTemperature = Double.MAX_VALUE;
+        for (double temperature : temperatures) {
+            if (minTemperature > temperature) {
+                minTemperature = temperature;
+            }
+        }
+
+        // Should be equal to the min value that is cached in the controller.
+        Assert.assertEquals(minTemperature, wController.getTemperatureMinFromCache(), 0);
+    }
+
+    @Test
+    public void testTemperatureMax() {
+        System.out.println("+++ testTemperatureMax +++");
+
+        double maxTemperature = Double.MIN_VALUE;
+        for (double temperature : temperatures) {
+            if (maxTemperature < temperature) {
+                maxTemperature = temperature;
+            }
+        }
+
+        // Should be equal to the max value that is cached in the controller.
+        Assert.assertEquals(maxTemperature, wController.getTemperatureMaxFromCache(), 0);
+    }
+
+    @Test
+    public void testTemperatureAverage() {
+        System.out.println("+++ testTemperatureAverage +++");
+
+        double sumTemp = 0;
+        for (double temperature : temperatures) {
+            sumTemp += temperature;
+        }
+        double averageTemp = sumTemp / nHours;
+
+        // Should be equal to the average value that is cached in the controller.
+        Assert.assertEquals(averageTemp, wController.getTemperatureAverageFromCache(), 0);
+    }
+
+
 	@Test
 	public void testTemperaturePersist() {
 		/*
